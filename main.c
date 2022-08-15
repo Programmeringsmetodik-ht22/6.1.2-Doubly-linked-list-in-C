@@ -5,13 +5,17 @@
 #include "double_list.h"
 
 /*******************************************************************************
-* main: Initierar en ny länkad lista som rymmer 20 flyttal vid start. Listan
-*       tilldelas flyttal i stigande ordning och innehåller skrivs ut i 
-*       terminalen innan programmet avslutas.
+* main: Initierar en ny länkad lista l1, som rymmer 20 flyttal vid start. 
+*       Listan tilldelas flyttal i stigande ordning. Ytterligare en tom länkad 
+*       lista l2 initieras, som tilldelas innehållet från listan l1 via 
+*       förflyttning av minnet. Efter förflyttningen äger därmed lista l2
+*       minnet och lista l1 är tom. Innan programmet avslutas sker utskrift
+*       av lagrat innehåll i terminalen.
 *******************************************************************************/
 int main(void)
 {
    struct double_list* l1 = double_list_ptr_new(20, 0.0);
+   struct double_list l2 = { .first = 0, .last = 0, .size = 0 };
    double num = 0.0;
 
    for (struct double_node* i = double_list_begin(l1); i != double_list_end(l1); i = i->next)
@@ -19,11 +23,8 @@ int main(void)
       double_list_assign_at_address(l1, i, num += 0.5);
    }
 
-   for (size_t i = 0; i < l1->size; ++i)
-   {
-      printf("%g\n", double_list_at_index(l1, i));
-   }
+   double_list_move(&l2, l1);
+   double_list_print(&l2, stdout);
 
-   double_list_print(l1, stdout);
    return 0;
 }

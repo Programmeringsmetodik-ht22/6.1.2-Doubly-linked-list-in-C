@@ -42,22 +42,30 @@ struct double_list* double_list_ptr_new(const size_t size,
 void double_list_ptr_delete(struct double_list** self);
 struct double_node* double_list_begin(const struct double_list* self);
 struct double_node* double_list_end(const struct double_list* self);
+int double_list_resize(struct double_list* self, 
+                       const size_t new_size);
 int double_list_push_front(struct double_list* self, 
-                           const double new_element);
+                           const double data);
 int double_list_push_back(struct double_list* self, 
-                          const double new_element);
+                          const double data);
 void double_list_pop_front(struct double_list* self);
 void double_list_pop_back(struct double_list* self);
 void double_list_assign_at_index(struct double_list* self,
                               const size_t index, 
                               const double val);
 void double_list_assign_at_address(struct double_list* self, 
-                                   const struct double_node* address, 
+                                   struct double_node* address, 
                                    const double val);
 double double_list_at_index(const struct double_list* self, 
                             const size_t index);
 double double_list_at_address(const struct double_list* self, 
                               const struct double_node* address);
+int double_list_copy(struct double_list* self, 
+                     const struct double_list* source);
+int double_list_join(struct double_list* self,
+                     const struct double_list* other_list);
+void double_list_move(struct double_list* self,
+                      struct double_list* source);
 void double_list_print(const struct double_list* self, 
                        FILE* ostream);
 
