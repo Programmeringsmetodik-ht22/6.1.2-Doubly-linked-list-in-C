@@ -25,6 +25,5 @@ int main(void)
 
    double_list_move(&l2, l1);
    double_list_print(&l2, stdout);
-
    return 0;
 }

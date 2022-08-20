@@ -50,6 +50,16 @@ int double_list_push_back(struct double_list* self,
                           const double data);
 void double_list_pop_front(struct double_list* self);
 void double_list_pop_back(struct double_list* self);
+int double_list_insert_at_index(struct double_list* self,
+                                 const size_t index,
+                                 const double val);
+int double_list_insert_at_address(struct double_list* self,
+                                  struct double_node* address,
+                                  const double val);
+int double_list_remove_at_index(struct double_list* self,
+                                 const size_t index);
+void double_list_remove_at_address(struct double_list* self,
+                                  struct double_node* address);
 void double_list_assign_at_index(struct double_list* self,
                               const size_t index, 
                               const double val);
@@ -68,6 +78,8 @@ void double_list_move(struct double_list* self,
                       struct double_list* source);
 void double_list_print(const struct double_list* self, 
                        FILE* ostream);
+struct double_node* double_list_node_at(const struct double_list* self,
+                                        const size_t index);
 
 /* Funktionspekare: */
 extern void (*double_list_clear)(struct double_list* self);

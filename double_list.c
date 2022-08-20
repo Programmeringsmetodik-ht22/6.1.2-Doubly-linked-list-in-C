@@ -5,13 +5,12 @@
 #include "double_list.h"
 
 /* Statiska funktioner: */
-static struct double_node* double_list_node_at(const struct double_list* self, 
-                                               const size_t index);
 static struct double_node* double_node_new(const double data);
 static void double_node_delete(struct double_node** self);
 
 /*******************************************************************************
 * double_list_new: Initierar tom länkad lista.
+* 
 *                  - self: Pekare till den länkade lista som skall initieras.
 *******************************************************************************/
 void double_list_new(struct double_list* self)
@@ -25,6 +24,7 @@ void double_list_new(struct double_list* self)
 /*******************************************************************************
 * double_list_delete: Tömmer angiven länkad lista genom att frigöra minne för
 *                     allokerade noder och nollställer listans parametrar.
+* 
 *                     - self: Pekare till den länkade listan.
 *******************************************************************************/
 void double_list_delete(struct double_list* self)
@@ -45,6 +45,7 @@ void double_list_delete(struct double_list* self)
 /*******************************************************************************
 * double_list_ptr_new: Allokerar minne för ny länkad lista med angiven storlek.
 *                      Varje element tilldelas angiven startvärde.
+* 
 *                      - size     : Storleken på den länkade listan vid start.
 *                      - start_val: Startvärde för samtliga element i listan.
 *******************************************************************************/
@@ -67,6 +68,7 @@ struct double_list* double_list_ptr_new(const size_t size,
 *                         En dubbelpekare till den länkade listan passeras
 *                         för att både frigöra minnet för listan samt sätta 
 *                         pekaren till det heapallokerad minnet till null.
+* 
 *                         - self: Adressen till den pekare som pekar på 
 *                                 den länkade listan.
 *******************************************************************************/
@@ -81,6 +83,7 @@ void double_list_ptr_delete(struct double_list** self)
 /*******************************************************************************
 * double_list_begin: Returnerar adressen till den första noden i angiven
 *                    länkad lista.
+* 
 *                    - self: Pekaren till den länkade listan.
 *******************************************************************************/
 struct double_node* double_list_begin(const struct double_list* self)
@@ -91,6 +94,7 @@ struct double_node* double_list_begin(const struct double_list* self)
 /*******************************************************************************
 * double_list_end: Returnerar adressen direkt efter sista noden i angiven
 *                  länkad lista.
+* 
 *                  - self: Pekare till den länkade listan.
 *******************************************************************************/
 struct double_node* double_list_end(const struct double_list* self)
@@ -101,6 +105,7 @@ struct double_node* double_list_end(const struct double_list* self)
 /*******************************************************************************
 * double_list_resize: Ändrar storleken på angiven länkad lista. Ifall nya noder 
 *                     läggs till sätts deras respektive startvärde till noll.
+* 
 *                     - self    : Pekare till den länkade listan.
 *                     - new_size: Ny storlek sett till antalet noder.
 *******************************************************************************/
@@ -130,6 +135,7 @@ int double_list_resize(struct double_list* self,
 /*******************************************************************************
 * double_list_push_front: Placerar ett nytt flyttal lagrat via en ny nod
 *                         längst fram i angiven länkad lista.
+* 
 *                         - self: Pekare till den länkade listan.
 *                         - data: Det flyttal som skall lagras.
 *******************************************************************************/
@@ -158,6 +164,7 @@ int double_list_push_front(struct double_list* self,
 /*******************************************************************************
 * double_list_push_back: Placerar ett nytt flyttal lagrat via en ny nod
 *                        längst bak i angiven länkad lista.
+* 
 *                        - self: Pekare till den länkade listan.
 *                        - data: Det flyttal som skall lagras.
 *******************************************************************************/
@@ -185,6 +192,7 @@ int double_list_push_back(struct double_list* self,
 
 /*******************************************************************************
 * double_list_pop_front: Tar bort första elementet i angiven länkad lista.
+* 
 *                        - self: Pekare till den länkade listan.
 *******************************************************************************/
 void double_list_pop_front(struct double_list* self)
@@ -208,6 +216,7 @@ void double_list_pop_front(struct double_list* self)
 
 /*******************************************************************************
 * double_list_pop_back: Tar bort det sista elementet i angiven länkad lista.
+* 
 *                       - self: Pekare till den länkade listan.
 *******************************************************************************/
 void double_list_pop_back(struct double_list* self)
@@ -231,7 +240,137 @@ void double_list_pop_back(struct double_list* self)
 }
 
 /*******************************************************************************
+* double_list_insert_at_index: Lägger till en ny nod som lagrar angivet flyttal
+*                               på angivet index.
+* 
+*                              - self : Pekare till den länkade listan.
+*                              - index: Index där den nya noden skall placeras.
+*                              - val  : Värdet som skall lagras.
+*******************************************************************************/
+int double_list_insert_at_index(struct double_list* self,
+                                const size_t index,
+                                const double val)
+{
+   if (index == 0)
+   {
+      return double_list_push_front(self, val);
+   }
+   else if (index >= self->size)
+   {
+      return double_list_push_back(self, val);
+   }
+   else
+   {
+      struct double_node* n2 = double_node_new(val);
+      struct double_node* n3 = double_list_node_at(self, index);
+      struct double_node* n1 = n3->previous;
+
+      if (!n2) return 1;
+
+      n1->next = n2;
+      n2->previous = n1;
+
+      n2->next = n3;
+      n3->previous = n2;
+
+      self->size++;
+      return 0;
+   }
+}
+
+/*******************************************************************************
+* double_list_insert_at_address: Lägger till en ny nod till noden på angiven
+*                                adress i angiven länkad lista. Ingen kontroll
+*                                genomförs gällande ifall angiven adress är
+*                                korrekt, vilket måste skötas av användaren.
+* 
+*                                - self   : Pekare till den länkade listan.
+*                                - address: Pekar på adressen där den nya
+*                                           noden skall placeras. 
+*                                - val    : Värdet som skall lagras.
+*******************************************************************************/
+int double_list_insert_at_address(struct double_list* self,
+                                  struct double_node* address,
+                                  const double val)
+{
+   if (!self->size)
+   {
+      return double_list_push_back(self, val);
+   }
+   else
+   {
+      struct double_node* n2 = double_node_new(val);
+      struct double_node* n3 = address;
+      struct double_node* n1 = n3->previous;
+
+      if (!n2) return 1;
+
+      n1->next = n2;
+      n2->previous = n1;
+
+      n2->next = n3;
+      n3->previous = n2;
+      self->size++;
+      return 0;
+   }
+}
+
+/*******************************************************************************
+* double_list_remove_at_index: Tar bort nod lagrad på angivet index i en 
+*                              länkad lista.
+* 
+*                             - self : Pekare till den länkade listan.
+*                             - index: Index för den nod som skall raderas.
+*******************************************************************************/
+int double_list_remove_at_index(struct double_list* self,
+                                const size_t index)
+{
+   if (index < self->size)
+   {
+      struct double_node* n2 = double_list_node_at(self, index);
+      struct double_node* n1 = n2->previous;
+      struct double_node* n3 = n2->next;
+
+      n1->next = n3;
+      n3->previous = n1;
+
+      double_node_delete(&n2);
+      self->size--;
+      return 0;
+   }
+   else
+   {
+      return 1;
+   }
+}
+
+/*******************************************************************************
+* double_list_remove_at_address: Tar bort nod lagrad på angiven adress i en
+*                                länkad lista. Ingen kontroll genomförs
+*                                gällande ifall angiven adress är korrekt,
+*                                vilket måste skötas av användaren.
+*
+*                                - self   : Pekare till den länkade listan.
+*                                - address: Adressen till noden som skall raderas.
+*******************************************************************************/
+void double_list_remove_at_address(struct double_list* self,
+                                  struct double_node* address)
+{
+   struct double_node* n2 = address;
+   struct double_node* n1 = n2->previous;
+   struct double_node* n3 = n2->next;
+
+   n1->next = n3;
+   n3->previous = n1;
+
+   double_node_delete(&n2);
+   self->size--;
+   return;
+}
+
+/*******************************************************************************
 * double_list_assign_at_index: Tilldelar ett nytt värde på angivet index.
+* 
 *                              - self : Pekare till den länkade listan.
 *                              - index: Index där det nya värdet skall lagras.
 *                              - val  : Värdet som skall lagras.
@@ -249,8 +388,10 @@ void double_list_assign_at_index(struct double_list* self,
 
 /*******************************************************************************
 * double_list_assign_at_address: Tilldelar ett flyttal till noden på angiven 
-*                                adress i angiven länkad lista. Denna funktion 
-*                                är lämplig för iteration av länkade listor.
+*                                adress i angiven länkad lista. Ingen kontroll
+*                                genomförs gällande ifall angiven adress är
+*                                korrekt, vilket måste skötas av användaren.
+* 
 *                                - self   : Pekare till den länkade listan.
 *                                - address: Pekar på nod som skall tilldelas.
 *                                - val    : Flyttalet som skall tilldelas.
@@ -266,6 +407,7 @@ void double_list_assign_at_address(struct double_list* self,
 /*******************************************************************************
 * double_list_at_index: Returnerar flyttal lagrat på angivet index i en 
 *                       länkad lista. Vid felaktigt index returneras 0.0.
+* 
 *                       - self : Pekare till den länkade listan.
 *                       - index: Index för flyttalet som skall returneras.
 *******************************************************************************/
@@ -299,6 +441,7 @@ double double_list_at_address(const struct double_list* self,
 * double_list_copy: Kopierar innehållet från en länkad lista till en annan.
 *                   Eventuellt tidigare innehåll raderas ur listan som
 *                   kopiering sker till.
+* 
 *                   - self  : Pekare till den länkade lista som kopierat
 *                              innehåll skall lagras i.
 *                   - source: Pekare till den länkade lista vars innehåll 
@@ -331,10 +474,11 @@ int double_list_copy(struct double_list* self,
 /*******************************************************************************
 * double_list_join: Sätter samman innehåll lagrat i två länkade listor genom
 *                   att kopiera från en lista till en annan.
+* 
 *                   - self      : Pekare till den länkade lista där det
-*                                  sammansatta innehållet skall lagras.
+*                                 sammansatta innehållet skall lagras.
 *                   - other_list: Pekare till den lista vars innehåll skall
-*                                  kopieras till den sammansatta listan.
+*                                 kopieras till den sammansatta listan.
 *******************************************************************************/
 int double_list_join(struct double_list* self,
                      const struct double_list* other_list)
@@ -373,8 +517,9 @@ int double_list_join(struct double_list* self,
 *                   Efter förflyttningen äger angiven länkad lista allokerat
 *                   minne, medan den lista som utgör källa töms och kan därför
 *                   inte längre användas för att komma åt innehållet.
+* 
 *                   - self  : Pekare till den länkade listan som innehållet
-*                              skall förflyttas till.
+*                             skall förflyttas till.
 *                   - source: Pekare till den lista som utgör källa.
 *******************************************************************************/
 void double_list_move(struct double_list* self,
@@ -395,6 +540,7 @@ void double_list_move(struct double_list* self,
 * double_list_print: Skriver ut flyttal lagrade i en länkad lista via angiven
 *                    utström, där standardutenhet stdout används som default
 *                    för utskrift i terminalen.
+* 
 *                    - self   : Pekare till den länkade listan.
 *                    - ostream: Pekare till aktuell utström.
 *******************************************************************************/
@@ -415,20 +561,15 @@ void double_list_print(const struct double_list* self,
 }
 
 /*******************************************************************************
-* double_list_clear: Tömmer och nollställer länkad lista.
-*                    - self: Pekare till den länkade listan.
-*******************************************************************************/
-void (*double_list_clear)(struct double_list* self) = &double_list_delete;
-
-/*******************************************************************************
 * double_list_node_at: Returnerar adressen till noden på angivet index i en
 *                      länkad lista via iteration. Beroende på nodens index
 *                      sker iteration framåt eller bakåt. 
+* 
 *                      - self : Pekare till den länkade listan.
 *                      - index: Index till noden vars adress skall returneras.
 *******************************************************************************/
-static struct double_node* double_list_node_at(const struct double_list* self, 
-                                               const size_t index)
+struct double_node* double_list_node_at(const struct double_list* self, 
+                                        const size_t index)
 {
    if (index < self->size / 2)
    {
@@ -449,7 +590,15 @@ static struct double_node* double_list_node_at(const struct double_list* self,
 }
 
 /*******************************************************************************
+* double_list_clear: Tömmer och nollställer länkad lista.
+* 
+*                    - self: Pekare till den länkade listan.
+*******************************************************************************/
+void (*double_list_clear)(struct double_list* self) = &double_list_delete;
+
+/*******************************************************************************
 * double_node_new: Returnerar en ny nod som lagrar angivet flyttal.
+* 
 *                  data: Det flyttal som skall lagras av den nya noden.
 *******************************************************************************/
 static struct double_node* double_node_new(const double data)
@@ -465,6 +614,7 @@ static struct double_node* double_node_new(const double data)
 /*******************************************************************************
 * double_node_delete: Frigör minne allokerat för en nod och sätter nodpekaren
 *                     till null (därav skall adressen till nodpekaren passeras).
+* 
 *                     - self: Adressen till den pekare som pekar på nodpekaren.
 *******************************************************************************/
 static void double_node_delete(struct double_node** self)
