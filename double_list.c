@@ -255,11 +255,11 @@ int double_list_insert_at_index(struct double_list* self,
    {
       return double_list_push_front(self, val);
    }
-   else if (index >= self->size)
+   else if (index == self->size)
    {
       return double_list_push_back(self, val);
    }
-   else
+   else if (index > 0 && index < self->size)
    {
       struct double_node* n2 = double_node_new(val);
       struct double_node* n3 = double_list_node_at(self, index);
@@ -275,6 +275,10 @@ int double_list_insert_at_index(struct double_list* self,
 
       self->size++;
       return 0;
+   }
+   else
+   {
+      return 1;
    }
 }
 
@@ -293,7 +297,11 @@ int double_list_insert_at_address(struct double_list* self,
                                   struct double_node* address,
                                   const double val)
 {
-   if (!self->size)
+   if (!self->size || address == self->first)
+   {
+      return double_list_push_front(self, val);
+   }
+   else if (address == self->last->next)
    {
       return double_list_push_back(self, val);
    }
@@ -325,6 +333,14 @@ int double_list_insert_at_address(struct double_list* self,
 int double_list_remove_at_index(struct double_list* self,
                                 const size_t index)
 {
+   if (index == 0)
+   {
+      double_list_pop_front(self);
+   }
+   else if (index == self->size - 1)
+   {
+      double_list_pop_back(self);
+   }
    if (index < self->size)
    {
       struct double_node* n2 = double_list_node_at(self, index);
@@ -356,15 +372,26 @@ int double_list_remove_at_index(struct double_list* self,
 void double_list_remove_at_address(struct double_list* self,
                                   struct double_node* address)
 {
-   struct double_node* n2 = address;
-   struct double_node* n1 = n2->previous;
-   struct double_node* n3 = n2->next;
+   if (address == self->first)
+   {
+      double_list_pop_front(self);
+   }
+   else if (address == self->last)
+   {
+      double_list_pop_back(self);
+   }
+   else
+   {
+      struct double_node* n2 = address;
+      struct double_node* n1 = n2->previous;
+      struct double_node* n3 = n2->next;
 
-   n1->next = n3;
-   n3->previous = n1;
+      n1->next = n3;
+      n3->previous = n1;
 
-   double_node_delete(&n2);
-   self->size--;
+      double_node_delete(&n2);
+      self->size--;
+   }
    return;
 }
 
